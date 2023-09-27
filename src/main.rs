@@ -1,5 +1,8 @@
 use console::style;
+use std::io::*;
+use std::cmp::*;
 
+// Color256 colur codes
 const GREY15: u8 = 235;
 const GREY39: u8 = 241;
 
@@ -50,16 +53,30 @@ enum Colour {
     White,
 }
 
-fn main() {
-    print_board(new_game_board());
+#[derive(Copy, Clone, PartialEq, Debug)]
+struct Square {
+    row: usize,
+    col: usize,
 }
 
-fn new_game_board() -> [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LENGTH] {
+#[derive(Copy, Clone, PartialEq, Debug)]
+struct Input {
+    src: Square,
+    dest: Square,
+}
+
+fn main() {
+    print_chessboard(new_chessboard());
+
+    dbg!(parse_input());
+}
+
+fn new_chessboard() -> [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LENGTH] {
     let mut board = [[Piece::Empty; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LENGTH]; // create new 2D array of Piece enums
 
     for i in 0..CHESSBOARD_SIDE_LENGTH {
-        board[1][i] = Piece::Pawn(Colour::Black);
-        board[6][i] = Piece::Pawn(Colour::White);
+        board[WHITE_PAWN_ROW][i] = Piece::Pawn(Colour::White);
+        board[BLACK_PAWN_ROW][i] = Piece::Pawn(Colour::Black);
     }
 
     for colour in [Colour::White, Colour::Black] {
@@ -96,11 +113,70 @@ fn new_game_board() -> [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LENGTH]
     board
 }
 
-fn print_board(board: [[Piece; 8]; 8]) {
-    for row in 0..8 {
-        for column in 0..8 {
+fn print_chessboard(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LENGTH]) {
+    for row in 0..CHESSBOARD_SIDE_LENGTH {
+        for column in 0..CHESSBOARD_SIDE_LENGTH {
             print!("{} ", board[row][column].format());
         }
         println!();
     }
+}
+
+fn parse_input() -> Input {
+    let mut user_input = String::new();
+    std::io::stdin()
+            .read_line(&mut user_input)
+            .expect("Error!");
+
+    let mut user_input_as_vector: Vec<char> = user_input.trim().to_lowercase().chars().collect(); 
+
+    if user_input_as_vector.len() == 5 {
+        user_input_as_vector.remove(2); // removes the middle character in user_input_as_vector (eg. if it were a ' ' or a 'x')
+    } else if user_input_as_vector.len() >= 6 {
+        todo!("User input too long!");
+    }
+
+    Input {
+        src: string_to_square(format!("{}{}", user_input_as_vector[0], user_input_as_vector[1])),
+        dest: string_to_square(format!("{}{}", user_input_as_vector[2], user_input_as_vector[3])),
+    }
+}
+
+fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LENGTH], square: Square) -> Vec<Square> {
+    let legal_squares: Vec<Square> = vec![];
+
+    let piece = board[square.row][square.col];
+
+    legal_squares
+}
+
+fn string_to_square(chess_notation: String) -> Square { // eg. converts "c3" to (5, 2)
+    let mut square = Square {row: 0, col: 0};
+    
+    let input: Vec<char> = chess_notation.trim().to_lowercase().chars().collect();
+
+    match input[0] {
+        'a' => square.col = 0, 
+        'b' => square.col = 1, 
+        'c' => square.col = 2, 
+        'd' => square.col = 3, 
+        'e' => square.col = 4, 
+        'f' => square.col = 5, 
+        'g' => square.col = 6, 
+        'h' => square.col = 7, 
+        _   => todo!("Handle invalid input!"),
+    }
+
+    match input[1] {
+        '8' => square.row = 0, 
+        '7' => square.row = 1, 
+        '6' => square.row = 2, 
+        '5' => square.row = 3, 
+        '4' => square.row = 4, 
+        '3' => square.row = 5, 
+        '2' => square.row = 6, 
+        '1' => square.row = 7, 
+        _   => todo!("Handle invalid input!"),
+    }
+    square
 }
