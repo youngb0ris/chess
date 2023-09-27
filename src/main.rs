@@ -91,14 +91,14 @@ fn main() {
     
     print_chessboard(chessboard);
     
-    chessboard = move_piece(chessboard, Square {row: 0, col: 0}, Square { row: 4, col: 2 });
+    chessboard = move_piece(chessboard, Square {row: 0, col: 2}, Square { row: 4, col: 1 });
     chessboard = move_piece(chessboard, Square {row: 0, col: 1}, Square { row: 4, col: 4 });
 
     print_chessboard(chessboard);
 
     // dbg!(get_legal_squares(chessboard, Square { row: 4, col: 2 }));
 
-    highlight_legal_squares(chessboard, Square { row: 4, col: 2 });
+    highlight_legal_squares(chessboard, Square { row: 4, col: 1 });
 
     dbg!(parse_input());
 }
@@ -183,47 +183,51 @@ fn parse_input() -> Input {
     }
 }
 
-fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LENGTH], square: Square) -> Vec<Square> {
+fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LENGTH], src_square: Square) -> Vec<Square> {
     let mut legal_squares: Vec<Square> = vec![];
-    let piece = board[square.row][square.col];
+    let piece = board[src_square.row][src_square.col];
 
     match piece {
         Piece::Pawn(_) => todo!(),
         Piece::Rook(_) => {
+            // checks for empty spaces radiating from EAST of the given square
             let mut i = 1;
-            while square.col + i < CHESSBOARD_SIDE_LENGTH { // checks for empty spaces radiating from the RIGHT of the given square
-                if board[square.row][square.col + i] == Piece::Empty {
-                    legal_squares.push(Square { row: square.row, col: square.col + i });
+            while src_square.col + i < CHESSBOARD_SIDE_LENGTH { 
+                if board[src_square.row][src_square.col + i] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row, col: src_square.col + i });
                     i += 1;
                 } else {
                     break;
                 }
             }
 
+            // checks for empty spaces radiating from the WEST of the given square
             let mut j = 1;
-            while j <= square.col { // checks for empty spaces radiating from the LEFT of the given square
-                if board[square.row][square.col - j] == Piece::Empty {
-                    legal_squares.push(Square { row: square.row, col: square.col - j });
+            while j <= src_square.col { 
+                if board[src_square.row][src_square.col - j] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row, col: src_square.col - j });
                     j += 1;
                 } else {
                     break;
                 }
             }
 
+            // checks for empty spaces radiating from the NORTH of the given square
             let mut k = 1;
-            while square.row + k < CHESSBOARD_SIDE_LENGTH {
-                if board[square.row + k][square.col] == Piece::Empty {
-                    legal_squares.push(Square { row: square.row + k, col: square.col});
+            while src_square.row + k < CHESSBOARD_SIDE_LENGTH {
+                if board[src_square.row + k][src_square.col] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row + k, col: src_square.col});
                     k += 1;
                 } else {
                     break;
                 }
             }
 
+            // checks for empty spaces radiating from the SOUTH of the given square
             let mut l = 1;
-            while l <= square.row { // checks for empty spaces radiating from the LEFT of the given square
-                if board[square.row - l][square.col] == Piece::Empty {
-                    legal_squares.push(Square { row: square.row - l, col: square.col});
+            while l <= src_square.row { 
+                if board[src_square.row - l][src_square.col] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row - l, col: src_square.col});
                     l += 1;
                 } else {
                     break;
@@ -233,8 +237,145 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
             legal_squares
         },
         Piece::Knight(_) => todo!(),
-        Piece::Bishop(_) => todo!(),
-        Piece::Queen(_) => todo!(),
+        Piece::Bishop(_) => {
+            // checks for empty spaces radiating NORTHEAST from src square
+            let mut i = 1;
+            while i <= src_square.row && src_square.col + i < CHESSBOARD_SIDE_LENGTH { 
+                if board[src_square.row - i][src_square.col + i] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row - i, col: src_square.col + i });
+                    i += 1;
+                } else {
+                    break;
+                }
+            }
+
+            // checks for empty spaces radiating SOUTHWEST from src square
+            let mut j = 1;
+            while src_square.row + j < CHESSBOARD_SIDE_LENGTH && j <= src_square.col { 
+                if board[src_square.row + j][src_square.col - j] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row + j, col: src_square.col - j });
+                    j += 1;
+                } else {
+                    break;
+                }
+            }
+
+            // checks for empty spaces radiating NORTHWEST from src square
+            let mut k = 1;
+            while k <= src_square.row && k <= src_square.col { 
+                if board[src_square.row - k][src_square.col - k] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row - k, col: src_square.col - k });
+                    k += 1;
+                } else {
+                    break;
+                }
+            }
+
+            // checks for empty spaces radiating SOUTHEAST from src square
+            let mut l = 1;
+            while src_square.row + l < CHESSBOARD_SIDE_LENGTH && src_square.col + l < CHESSBOARD_SIDE_LENGTH { 
+                if board[src_square.row + l][src_square.col + l] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row + l, col: src_square.col + l });
+                    l += 1;
+                } else {
+                    break;
+                }
+            }
+
+            legal_squares
+        },
+        Piece::Queen(_) => {
+            // literally just copied bishop and rook code
+            // checks for empty spaces radiating from EAST of the given square
+            let mut i = 1;
+            while src_square.col + i < CHESSBOARD_SIDE_LENGTH { 
+                if board[src_square.row][src_square.col + i] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row, col: src_square.col + i });
+                    i += 1;
+                } else {
+                    break;
+                }
+            }
+
+            // checks for empty spaces radiating from the WEST of the given square
+            let mut j = 1;
+            while j <= src_square.col { 
+                if board[src_square.row][src_square.col - j] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row, col: src_square.col - j });
+                    j += 1;
+                } else {
+                    break;
+                }
+            }
+
+            // checks for empty spaces radiating from the NORTH of the given square
+            let mut k = 1;
+            while src_square.row + k < CHESSBOARD_SIDE_LENGTH {
+                if board[src_square.row + k][src_square.col] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row + k, col: src_square.col});
+                    k += 1;
+                } else {
+                    break;
+                }
+            }
+
+            // checks for empty spaces radiating from the SOUTH of the given square
+            let mut l = 1;
+            while l <= src_square.row { 
+                if board[src_square.row - l][src_square.col] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row - l, col: src_square.col});
+                    l += 1;
+                } else {
+                    break;
+                }
+            }
+
+            // checks for empty spaces radiating NORTHEAST from src square
+            let mut m = 1;
+            while m <= src_square.row && src_square.col + m < CHESSBOARD_SIDE_LENGTH { 
+                if board[src_square.row - m][src_square.col + m] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row - m, col: src_square.col + m });
+                    m += 1;
+                } else {
+                    break;
+                }
+            }
+
+            // checks for empty spaces radiating SOUTHWEST from src square
+            let mut n = 1;
+            while src_square.row + n < CHESSBOARD_SIDE_LENGTH && n <= src_square.col { 
+                if board[src_square.row + n][src_square.col - n] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row + n, col: src_square.col - n });
+                    n += 1;
+                } else {
+                    break;
+                }
+            }
+
+            // checks for empty spaces radiating NORTHWEST from src square
+            let mut o = 1;
+            while o <= src_square.row && o <= src_square.col { 
+                if board[src_square.row - o][src_square.col - o] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row - o, col: src_square.col - o });
+                    o += 1;
+                } else {
+                    break;
+                }
+            }
+
+            // checks for empty spaces radiating SOUTHEAST from src square
+            let mut p = 1;
+            while src_square.row + p < CHESSBOARD_SIDE_LENGTH && src_square.col + p < CHESSBOARD_SIDE_LENGTH { 
+                if board[src_square.row + p][src_square.col + p] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row + p, col: src_square.col + p });
+                    p += 1;
+                } else {
+                    break;
+                }
+            }
+
+            legal_squares
+        },
         Piece::King(_) => todo!(),
         Piece::Empty => todo!(),
     }
