@@ -8,6 +8,7 @@ use std::fmt::*;
 const GREY_15: u8 = 235;
 const GREY_39: u8 = 241;
 const DARK_RED: u8 = 52;
+const OLIVE: u8 = 94;
 
 const WHITE_PAWN_ROW: usize = 6;
 const WHITE_NON_PAWN_ROW: usize = 7;
@@ -467,9 +468,20 @@ fn highlight_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_S
             let sq = Square {row: r, col: c};
 
             if legal_squares.contains(&sq) {
-                print!("{}", style("⬤ ").yellow());
+                if board[r][c] == Piece::Empty {
+                    print!("{} ", style("⬤").yellow());
+                } else if board[r][c].colour() == Colour::White {
+                    print!("{} ", style(board[r][c]).white().on_red());
+                } else {
+                    print!("{} ", style(board[r][c]).black().on_red());
+                }
             } else if sq == src_square {
-                print!("{} ", style(board[r][c].format())); // todo make this print a coloured letter on the usual background colour (white for white, grey for black)
+                if board[r][c].colour() == Colour::White {
+                    print!("{} ", style(board[r][c]).color256(OLIVE).on_white());
+                } else {
+                    print!("{} ", style(board[r][c]).color256(OLIVE).on_color256(GREY_15));
+                }
+                // print!("{} ", style(board[r][c].format())); // todo make this print a coloured letter on the usual background colour (white for white, grey for black)
             } else {
                 print!("{} ", board[r][c].format());
             }
