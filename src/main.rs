@@ -115,11 +115,13 @@ fn main() {
     chessboard = move_piece(chessboard, Square {row: 0, col: 3}, Square { row: 4, col: 2 }); // rook
     chessboard = move_piece(chessboard, Square {row: 0, col: 1}, Square { row: 4, col: 4 }); // knight
 
+    chessboard = move_piece(chessboard, Square {row: 1, col: 0}, Square { row: 5, col: 1 }); 
+
     print_chessboard(chessboard);
 
     // dbg!(get_legal_squares(chessboard, Square { row: 4, col: 2 }));
 
-    highlight_legal_squares(chessboard, Square { row: 4, col: 4 });
+    highlight_legal_squares(chessboard, Square { row: 5, col: 1 });
 
     dbg!(parse_input());
 }
@@ -209,7 +211,36 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
     let piece = board[src_square.row][src_square.col];
 
     match piece {
-        Piece::Pawn(_) => todo!(),
+        Piece::Pawn(_) => {
+            if piece.colour() == Colour::White {
+                if src_square.row >= 1 && board[src_square.row - 1][src_square.col] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row - 1, col: src_square.col });
+                }
+                if src_square.row == WHITE_PAWN_ROW && board[src_square.row - 2][src_square.col] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row - 2, col: src_square.col });
+                }
+                if src_square.col >= 1 && board[src_square.row - 1][src_square.col - 1] != Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row - 1, col: src_square.col - 1});
+                } 
+                if src_square.col <= 6 && board[src_square.row - 1][src_square.col + 1] != Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row - 1, col: src_square.col + 1});
+                }
+            } else { // if piece is black
+                if src_square.row <= 6 && board[src_square.row + 1][src_square.col] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row + 1, col: src_square.col });
+                }
+                if src_square.row == BLACK_PAWN_ROW && board[src_square.row + 2][src_square.col] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row + 2, col: src_square.col });
+                }
+                if src_square.col >= 1 && board[src_square.row + 1][src_square.col - 1] != Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row + 1, col: src_square.col - 1});
+                } 
+                if src_square.col <= 6 && board[src_square.row + 1][src_square.col + 1] != Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row + 1, col: src_square.col + 1});
+                }
+            }
+            legal_squares
+        },
         Piece::Rook(_) => {
             // check E squares
             let mut i = 1;
