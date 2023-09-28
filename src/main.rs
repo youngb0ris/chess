@@ -19,7 +19,7 @@ const CHESSBOARD_SIDE_LENGTH: usize = 8;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 enum Piece {
-    Pawn(Colour), 
+    Pawn(Colour),
     Rook(Colour),
     Knight(Colour),
     Bishop(Colour),
@@ -46,6 +46,26 @@ impl Piece {
             Piece::King(Colour::Black) => style("K").color256(GREY_39).on_color256(GREY_15).to_string(),
 
             Piece::Empty => "·".to_string(),
+        }
+    }
+
+    fn colour(&self) -> Colour {
+        match self {
+            Piece::Pawn(Colour::White)   |
+            Piece::Rook(Colour::White)   |
+            Piece::Knight(Colour::White) |
+            Piece::Bishop(Colour::White) |
+            Piece::Queen(Colour::White)  |
+            Piece::King(Colour::White) => Colour::White,
+
+            Piece::Pawn(Colour::Black)   |
+            Piece::Rook(Colour::Black)   |
+            Piece::Knight(Colour::Black) |
+            Piece::Bishop(Colour::Black) |
+            Piece::Queen(Colour::Black)  |
+            Piece::King(Colour::Black) => Colour::Black,
+
+            Piece::Empty => panic!("Piece::Empty has no colour!"),
         }
     }
 }
@@ -91,14 +111,14 @@ fn main() {
     
     print_chessboard(chessboard);
     
-    chessboard = move_piece(chessboard, Square {row: 0, col: 3}, Square { row: 4, col: 1 }); // queen
+    chessboard = move_piece(chessboard, Square {row: 0, col: 0}, Square { row: 4, col: 1 }); // rook
     chessboard = move_piece(chessboard, Square {row: 0, col: 1}, Square { row: 4, col: 4 }); // knight
 
     print_chessboard(chessboard);
 
     // dbg!(get_legal_squares(chessboard, Square { row: 4, col: 2 }));
 
-    highlight_legal_squares(chessboard, Square { row: 4, col: 4 });
+    highlight_legal_squares(chessboard, Square { row: 4, col: 1 });
 
     dbg!(parse_input());
 }
@@ -191,11 +211,14 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
         Piece::Pawn(_) => todo!(),
         Piece::Rook(_) => {
             // check E squares
-            let mut i = 1;
-            while src_square.col + i < CHESSBOARD_SIDE_LENGTH { 
-                if board[src_square.row][src_square.col + i] == Piece::Empty {
-                    legal_squares.push(Square { row: src_square.row, col: src_square.col + i });
-                    i += 1;
+            let mut k = 1;
+            while src_square.col + k < CHESSBOARD_SIDE_LENGTH { 
+                if board[src_square.row][src_square.col + k] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row, col: src_square.col + k });
+                    k += 1;
+                } else if board[src_square.row][src_square.col + k].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row, col: src_square.col + k });
+                    break;
                 } else {
                     break;
                 }
@@ -207,6 +230,9 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row][src_square.col - j] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row, col: src_square.col - j });
                     j += 1;
+                } else if board[src_square.row][src_square.col - j].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row, col: src_square.col - j });
+                    break;
                 } else {
                     break;
                 }
@@ -218,6 +244,9 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row + k][src_square.col] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row + k, col: src_square.col});
                     k += 1;
+                } else if board[src_square.row + k][src_square.col].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row + k, col: src_square.col });
+                    break;
                 } else {
                     break;
                 }
@@ -229,6 +258,9 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row - l][src_square.col] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row - l, col: src_square.col});
                     l += 1;
+                } else if board[src_square.row- l][src_square.col].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row - l, col: src_square.col });
+                    break;
                 } else {
                     break;
                 }
