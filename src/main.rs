@@ -115,13 +115,13 @@ fn main() {
     chessboard = move_piece(chessboard, Square {row: 0, col: 3}, Square { row: 4, col: 2 }); // rook
     chessboard = move_piece(chessboard, Square {row: 0, col: 1}, Square { row: 4, col: 4 }); // knight
 
-    chessboard = move_piece(chessboard, Square {row: 1, col: 0}, Square { row: 5, col: 1 }); 
+    chessboard = move_piece(chessboard, Square {row: 0, col: 4}, Square { row: 6, col: 0 }); 
 
     print_chessboard(chessboard);
 
     // dbg!(get_legal_squares(chessboard, Square { row: 4, col: 2 }));
 
-    highlight_legal_squares(chessboard, Square { row: 5, col: 1 });
+    highlight_legal_squares(chessboard, Square { row: 6, col: 0 });
 
     dbg!(parse_input());
 }
@@ -524,7 +524,57 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
 
             legal_squares
         },
-        Piece::King(_) => todo!(),
+        Piece::King(_) => {
+            // check N square
+            if src_square.row >= 1 && 
+                    (board[src_square.row - 1][src_square.col] == Piece::Empty || board[src_square.row - 1][src_square.col].colour() != piece.colour()) {
+                legal_squares.push(Square { row: src_square.row - 1, col: src_square.col });
+            } 
+
+            // check NE square
+            if src_square.row >= 1 && src_square.col <= 6 && 
+                    (board[src_square.row - 1][src_square.col + 1] == Piece::Empty || board[src_square.row - 1][src_square.col + 1].colour() != piece.colour()) {
+                legal_squares.push(Square { row: src_square.row - 1, col: src_square.col + 1 });
+            } 
+
+            // check E square
+            if src_square.col <= 6 && 
+                    (board[src_square.row][src_square.col + 1] == Piece::Empty || board[src_square.row][src_square.col + 1].colour() != piece.colour()) {
+                legal_squares.push(Square { row: src_square.row, col: src_square.col + 1 });
+            } 
+
+            // check SE square
+            if src_square.row <= 6 && src_square.col <= 6 && 
+                    (board[src_square.row + 1][src_square.col + 1] == Piece::Empty || board[src_square.row + 1][src_square.col + 1].colour() != piece.colour()) {
+                legal_squares.push(Square { row: src_square.row + 1, col: src_square.col + 1 });
+            } 
+            
+            // check S square
+            if src_square.row <= 6 && 
+                    (board[src_square.row + 1][src_square.col] == Piece::Empty || board[src_square.row + 1][src_square.col].colour() != piece.colour()) {
+                legal_squares.push(Square { row: src_square.row + 1, col: src_square.col});
+            } 
+
+            // check SW square
+            if src_square.row <= 6 && src_square.col >= 1 && 
+                    (board[src_square.row + 1][src_square.col - 1] == Piece::Empty || board[src_square.row + 1][src_square.col - 1].colour() != piece.colour()) {
+                legal_squares.push(Square { row: src_square.row + 1, col: src_square.col - 1});
+            } 
+
+            // check W square
+            if src_square.col >= 1 && 
+                    (board[src_square.row][src_square.col - 1] == Piece::Empty || board[src_square.row][src_square.col - 1].colour() != piece.colour()) {
+                legal_squares.push(Square { row: src_square.row, col: src_square.col - 1});
+            }
+
+            // check NW square
+            if src_square.col >= 1 && src_square.row >= 1 && 
+                    (board[src_square.row - 1][src_square.col - 1] == Piece::Empty || board[src_square.row - 1][src_square.col - 1].colour() != piece.colour()) {
+                legal_squares.push(Square { row: src_square.row - 1, col: src_square.col - 1});
+            } 
+
+            legal_squares
+        },
         Piece::Empty => legal_squares,
     }
 }
