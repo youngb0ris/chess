@@ -112,14 +112,14 @@ fn main() {
     
     print_chessboard(chessboard);
     
-    chessboard = move_piece(chessboard, Square {row: 0, col: 0}, Square { row: 4, col: 1 }); // rook
+    chessboard = move_piece(chessboard, Square {row: 0, col: 3}, Square { row: 4, col: 2 }); // rook
     chessboard = move_piece(chessboard, Square {row: 0, col: 1}, Square { row: 4, col: 4 }); // knight
 
     print_chessboard(chessboard);
 
     // dbg!(get_legal_squares(chessboard, Square { row: 4, col: 2 }));
 
-    highlight_legal_squares(chessboard, Square { row: 4, col: 1 });
+    highlight_legal_squares(chessboard, Square { row: 4, col: 4 });
 
     dbg!(parse_input());
 }
@@ -212,13 +212,13 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
         Piece::Pawn(_) => todo!(),
         Piece::Rook(_) => {
             // check E squares
-            let mut k = 1;
-            while src_square.col + k < CHESSBOARD_SIDE_LENGTH { 
-                if board[src_square.row][src_square.col + k] == Piece::Empty {
-                    legal_squares.push(Square { row: src_square.row, col: src_square.col + k });
-                    k += 1;
-                } else if board[src_square.row][src_square.col + k].colour() != piece.colour() {
-                    legal_squares.push(Square { row: src_square.row, col: src_square.col + k });
+            let mut i = 1;
+            while src_square.col + i < CHESSBOARD_SIDE_LENGTH { 
+                if board[src_square.row][src_square.col + i] == Piece::Empty {
+                    legal_squares.push(Square { row: src_square.row, col: src_square.col + i });
+                    i += 1;
+                } else if board[src_square.row][src_square.col + i].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row, col: src_square.col + i });
                     break;
                 } else {
                     break;
@@ -271,42 +271,50 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
         },
         Piece::Knight(_) => {
             // check NNW square
-            if src_square.row >= 2 && src_square.col >= 1 && board[src_square.row - 2][src_square.col - 1] == Piece::Empty {
+            if src_square.row >= 2 && src_square.col >= 1 && board[src_square.row - 2][src_square.col - 1] == Piece::Empty || 
+                    board[src_square.row - 2][src_square.col - 1].colour() != piece.colour() {
                 legal_squares.push(Square { row: src_square.row - 2, col: src_square.col - 1 })
             }
 
             // check NNE square
-            if src_square.row >= 2 && src_square.col + 1 < CHESSBOARD_SIDE_LENGTH && board[src_square.row - 2][src_square.col + 1] == Piece::Empty {
+            if src_square.row >= 2 && src_square.col + 1 < CHESSBOARD_SIDE_LENGTH && board[src_square.row - 2][src_square.col + 1] == Piece::Empty || 
+                    board[src_square.row - 2][src_square.col + 1].colour() != piece.colour() {
                 legal_squares.push(Square { row: src_square.row - 2, col: src_square.col + 1 })
             }
 
             // check ENE square
-            if src_square.row >= 1 && src_square.col + 2 < CHESSBOARD_SIDE_LENGTH && board[src_square.row - 1][src_square.col + 2] == Piece::Empty {
+            if src_square.row >= 1 && src_square.col + 2 < CHESSBOARD_SIDE_LENGTH && board[src_square.row - 1][src_square.col + 2] == Piece::Empty ||
+                    board[src_square.row - 1][src_square.col + 2].colour() != piece.colour() {
                 legal_squares.push(Square { row: src_square.row - 1, col: src_square.col + 2 })
             }
 
             // check ESE square
-            if src_square.row + 1 < CHESSBOARD_SIDE_LENGTH && src_square.col + 2 < CHESSBOARD_SIDE_LENGTH && board[src_square.row + 1][src_square.col + 2] == Piece::Empty {
+            if src_square.row + 1 < CHESSBOARD_SIDE_LENGTH && src_square.col + 2 < CHESSBOARD_SIDE_LENGTH && board[src_square.row + 1][src_square.col + 2] == Piece::Empty ||
+                    board[src_square.row + 1][src_square.col + 2].colour() != piece.colour() {
                 legal_squares.push(Square { row: src_square.row + 1, col: src_square.col + 2 })
             }
 
             // check SSE square
-            if src_square.row + 2 < CHESSBOARD_SIDE_LENGTH && src_square.col + 1 < CHESSBOARD_SIDE_LENGTH && board[src_square.row + 2][src_square.col + 1] == Piece::Empty {
+            if src_square.row + 2 < CHESSBOARD_SIDE_LENGTH && src_square.col + 1 < CHESSBOARD_SIDE_LENGTH && board[src_square.row + 2][src_square.col + 1] == Piece::Empty || 
+                    board[src_square.row + 2][src_square.col + 1].colour() != piece.colour() {
                 legal_squares.push(Square { row: src_square.row + 2, col: src_square.col + 1 })
             }
 
             // check SSW square
-            if src_square.row + 2 < CHESSBOARD_SIDE_LENGTH && src_square.col >= 1 && board[src_square.row + 2][src_square.col - 1] == Piece::Empty {
+            if src_square.row + 2 < CHESSBOARD_SIDE_LENGTH && src_square.col >= 1 && board[src_square.row + 2][src_square.col - 1] == Piece::Empty || 
+                    board[src_square.row + 2][src_square.col - 1].colour() != piece.colour() {
                 legal_squares.push(Square { row: src_square.row + 2, col: src_square.col - 1 })
             }
 
             // check WSW square
-            if src_square.row + 1 < CHESSBOARD_SIDE_LENGTH && src_square.col >= 2 && board[src_square.row + 1][src_square.col - 2] == Piece::Empty {
+            if src_square.row + 1 < CHESSBOARD_SIDE_LENGTH && src_square.col >= 2 && board[src_square.row + 1][src_square.col - 2] == Piece::Empty || 
+                    board[src_square.row + 1][src_square.col - 2].colour() != piece.colour() {       
                 legal_squares.push(Square { row: src_square.row + 1, col: src_square.col - 2 })
             }
 
             // check WNW square
-            if src_square.row >= 1 && src_square.col >= 2 && board[src_square.row - 1][src_square.col - 2] == Piece::Empty {
+            if src_square.row >= 1 && src_square.col >= 2 && board[src_square.row - 1][src_square.col - 2] == Piece::Empty ||
+                    board[src_square.row - 1][src_square.col - 2].colour() != piece.colour() {
                 legal_squares.push(Square { row: src_square.row - 1, col: src_square.col - 2 })
             }
 
@@ -319,6 +327,9 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row - i][src_square.col + i] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row - i, col: src_square.col + i });
                     i += 1;
+                } else if board[src_square.row - i][src_square.col + i].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row - i, col: src_square.col + i });
+                    break;
                 } else {
                     break;
                 }
@@ -330,6 +341,8 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row + j][src_square.col - j] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row + j, col: src_square.col - j });
                     j += 1;
+                } else if board[src_square.row + j][src_square.col - j].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row + j, col: src_square.col - j });                    break;
                 } else {
                     break;
                 }
@@ -341,6 +354,9 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row - k][src_square.col - k] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row - k, col: src_square.col - k });
                     k += 1;
+                } else if board[src_square.row - k][src_square.col - k].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row - k, col: src_square.col - k });
+                    break;
                 } else {
                     break;
                 }
@@ -352,6 +368,9 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row + l][src_square.col + l] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row + l, col: src_square.col + l });
                     l += 1;
+                } else if board[src_square.row + l][src_square.col + l].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row + l, col: src_square.col + l });
+                    break;
                 } else {
                     break;
                 }
@@ -367,6 +386,9 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row][src_square.col + i] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row, col: src_square.col + i });
                     i += 1;
+                } else if board[src_square.row][src_square.col + i].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row, col: src_square.col + i });
+                    break;
                 } else {
                     break;
                 }
@@ -378,6 +400,9 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row][src_square.col - j] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row, col: src_square.col - j });
                     j += 1;
+                } else if board[src_square.row][src_square.col - j].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row, col: src_square.col - j });
+                    break;
                 } else {
                     break;
                 }
@@ -389,6 +414,9 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row + k][src_square.col] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row + k, col: src_square.col});
                     k += 1;
+                } else if board[src_square.row + k][src_square.col].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row + k, col: src_square.col });
+                    break;
                 } else {
                     break;
                 }
@@ -400,6 +428,9 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row - l][src_square.col] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row - l, col: src_square.col});
                     l += 1;
+                } else if board[src_square.row- l][src_square.col].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row - l, col: src_square.col });
+                    break;
                 } else {
                     break;
                 }
@@ -411,6 +442,9 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row - m][src_square.col + m] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row - m, col: src_square.col + m });
                     m += 1;
+                } else if board[src_square.row - m][src_square.col + m].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row - m, col: src_square.col + m });
+                    break;
                 } else {
                     break;
                 }
@@ -422,6 +456,8 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row + n][src_square.col - n] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row + n, col: src_square.col - n });
                     n += 1;
+                } else if board[src_square.row + n][src_square.col - n].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row + n, col: src_square.col - n });                    break;
                 } else {
                     break;
                 }
@@ -433,6 +469,9 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row - o][src_square.col - o] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row - o, col: src_square.col - o });
                     o += 1;
+                } else if board[src_square.row - o][src_square.col - o].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row - o, col: src_square.col - o });
+                    break;
                 } else {
                     break;
                 }
@@ -444,6 +483,9 @@ fn get_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_SIDE_LE
                 if board[src_square.row + p][src_square.col + p] == Piece::Empty {
                     legal_squares.push(Square { row: src_square.row + p, col: src_square.col + p });
                     p += 1;
+                } else if board[src_square.row + p][src_square.col + p].colour() != piece.colour() {
+                    legal_squares.push(Square { row: src_square.row + p, col: src_square.col + p });
+                    break;
                 } else {
                     break;
                 }
@@ -481,7 +523,6 @@ fn highlight_legal_squares(board: [[Piece; CHESSBOARD_SIDE_LENGTH]; CHESSBOARD_S
                 } else {
                     print!("{} ", style(board[r][c]).color256(OLIVE).on_color256(GREY_15));
                 }
-                // print!("{} ", style(board[r][c].format())); // todo make this print a coloured letter on the usual background colour (white for white, grey for black)
             } else {
                 print!("{} ", board[r][c].format());
             }
